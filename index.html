@@ -3,61 +3,39 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portal Retro</title>
+    <title>Sinal Retro</title>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; background-color: #000; color: #fff; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
-        #ui-layer { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; background: radial-gradient(circle, #1a1a1a 0%, #000 100%); }
-        .btn-start { 
-            padding: 20px 40px; border: 3px solid #1AAFFF; background: transparent; color: #1AAFFF; 
-            font-size: 20px; font-weight: bold; cursor: pointer; text-transform: uppercase; 
-            box-shadow: 0 0 15px #1AAFFF; transition: 0.3s;
-        }
-        .btn-start:hover { background: #1AAFFF; color: #000; box-shadow: 0 0 30px #1AAFFF; }
-        #game-canvas { width: 100%; height: 100%; display: none; }
-        #status-text { margin-top: 20px; color: #555; font-size: 14px; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; color: #fff; overflow: hidden; }
+        #container { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; text-align: center; position: absolute; z-index: 10; background: #000; }
+        #game-area { width: 100vw; height: 100vh; display: none; position: relative; z-index: 1; }
+        .btn-start { padding: 20px 40px; border: 2px solid #1AAFFF; background: transparent; color: #1AAFFF; font-size: 1.5rem; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <div id="ui-layer">
-        <div style="margin-bottom: 30px;">
-            <h2 style="color: #1AAFFF; letter-spacing: 5px;">SISTEMA CARREGADO</h2>
-        </div>
-        <button class="btn-start" id="btn-play">Press Start</button>
-        <p id="status-text">Aguardando interação...</p>
+    <div id="container">
+        <button class="btn-start" id="start-btn">PRESS START</button>
+        <p style="margin-top:15px; color:#444;">Sistema Eduardo Dias Tech</p>
     </div>
-
-    <div id="game-canvas"></div>
+    <!-- O segredo está aqui: o container precisa de ID e dimensões explícitas -->
+    <div id="game-area"></div>
 
     <script>
-        // Configuração de Origem
-        const REPO_URL = 'https://duduxeon.github.io/';
         const params = new URLSearchParams(window.location.search);
-        
-        // Captura da ROM e Sistema via URL
-        const romPath = params.get("rom"); 
-        const consoleType = params.get("system") || "snes";
+        const romName = params.get("rom");
+        const system = params.get("system") || "snes";
 
-        document.getElementById("btn-play").onclick = function() {
-            if (!romPath) {
-                alert("Erro: Nenhuma ROM detectada. Verifique o link da tag NFC.");
-                return;
-            }
+        document.getElementById("start-btn").onclick = function() {
+            if (!romName) return alert("Erro: ROM ausente");
 
-            // Interface
-            document.getElementById("ui-layer").style.display = "none";
-            document.getElementById("game-canvas").style.display = "block";
+            document.getElementById("container").style.display = "none";
+            document.getElementById("game-area").style.display = "block";
 
-            // Configurações Globais do EmulatorJS
-            window.EJS_player = "#game-canvas";
-            window.EJS_core = consoleType;
-            window.EJS_gameUrl = REPO_URL + romPath; // Monta o link absoluto
-            window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/"; // CDN estável
+            window.EJS_player = "#game-area";
+            window.EJS_core = system;
+            window.EJS_gameUrl = 'https://duduxeon.github.io/' + romName;
+            window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
             window.EJS_startOnLoaded = true;
-            window.EJS_browserMode = "mobile"; 
-            window.EJS_cacheConfig = { enabled: true, cacheMaxSizeMB: 500 };
 
-            // Carregamento do Script de Emulação
             const script = document.createElement("script");
             script.src = window.EJS_pathtodata + "loader.js";
             document.body.appendChild(script);
